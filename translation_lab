@@ -1,0 +1,160 @@
+                                           Labs translation to command line 
+
+I)   labs: Google Cloud Fundamentals: Getting started with compute Engine
+
+
+Objectives: 
+
+In this lab, you will learn how to perform the following tasks:
+
+- create a virtual compute Engine virtual machine using the Google Cloud Platform  (GCP) Console.
+- Create a compute Engine virtual machine using the gcloud command-line interface
+- connect between the two instances
+
+## Task1: sign in to the Google platform console
+
+Here after sign in to the Google platform console, you have to click the Open Cloud Shell button, click on Continue to start the Cloud Shell.
+
+
+## Task2 : Create compute Engine using the cloud. 
+
+
+- Create a Compute Engine using the console.
+
+gcloud  compute  instances create my-vm-1 --zone=us-central1-a --machine-type=n1-standard-1 --subnet=default  --tags http
+
+- create firewall rules to allow http traffic on my-vm-1
+
+gcloud compute  firewall-rules create allo-http --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=tcp:80 --target-tags=http
+
+
+## Task3 : Create a virtual machine using the gcloud command line
+
+
+- list the zone and grep the us-central1 zone
+
+gcloud compute zones list | grep us-central1
+
+- set your default zone to the one you just chose(us-central1-b)
+
+gcloud config set compute/zone us-central1-b
+
+- creat a VM instance called my-vm-2 in that zone.
+
+gcloud compute instances create "my-vm-2" --machine-type "n1-standard-1" --image-project "debian-cloud" --image "debian-9-stretch-v20190213" --subnet "default"
+
+
+## Task 4 : connect between VM instances
+
+- first try to ping my-vm-1 to check for connectivity
+
+ping -c 3  my-vm -2
+  you will receive respons from  my-vm -1 if all is ok else check what is wrong
+
+- connect to  my-vm -2
+
+gcloud compute ssh my-vm-2 (entre y to generate a key and put a passphrase )
+
+- ping my-vm-1 from my-vm-2
+ping -c 3  my-vm -1
+
+- us the ssh command to connect to my-vm-1 
+ssh my-vm-1 ( entre y to accept when question will be asked)
+
+- now that we are in my-vm-1, let install nginx web server
+sudo apt-get install nginx-light -y
+- use the nano text editor to add a custom message to the home page of the web server
+sudo nano /var/www/html/index.nginx-debian.html
+
+- use the arrow keys to move the cursor to the line just below the h1 header. Add text like this, and replace YOUR_NAME with your name.
+- confirme that the web server is serving your new page.
+curl http://localhost/
+
+ 2-Now get the external ip of my-vm-1 instance 
+- first list instances in us-central1-a zone to get external ip of the instance
+gcloud instances list –zone us-central1-a
+
+- Copy the External IP address for my-vm-1 and paste it into the address bar of a new browser tab. You will see your web server's home page, including your custom text.
+						
+                                                        
+
+
+II)   labs: Google Cloud Fundamentals: Getting started with GKE
+
+Objectives: 
+In this lab, you will learn how to perform the following tasks:
+	- Provision a Kubernetes cluster using Kubernetes Engine.
+	- Deploy and manage Docker containers using kubectl
+
+
+Task 1: Sign in to the Google Cloud Platform (GCP) Console
+
+after that you sign in to the Google cloud Platform(GCP) Console, on the top right toolbar, click the Open Cloud Shell button and click to continue to actived you your Cloud Shell
+
+
+Task 2: Confirm that needed APIs are enabled
+
+- in the Cloud Shell enter this two command to confirm that needed APIs are enabled
+
+gcloud services list --enabled --filter='Kubernetes Engine API'
+gcloud services list  --enabled --filter='Container Registry API'
+
+
+Task 3: Start a Kubernetes Engine cluster
+
+- For convenience, place the zone that Qwiklabs assigned you to into an environment variable called MY_ZONE. At the Cloud Shell prompt, type this partial command
+
+export MY_ZONE=us-central1-a
+
+- Start a Kubernetes cluster managed by Kubernetes Engine. Name the cluster webfrontend and configure it to run 2 nodes
+
+gcloud container clusters create webfrontend --zone $MY_ZONE --num-nodes 2
+
+- After the cluster is created, check your installed version of Kubernetes using the kubectl version command
+
+kubectl version
+
+- View your running nodes in the GCP Console
+
+gcloud compute instances list --zone us-central1-a
+
+
+Task 4: Run and deploy a container
+
+1- From your Cloud Shell prompt, launch a single instance of the nginx container. (Nginx is a popular web server.)
+
+kubectl create deploy nginx --image=nginx:1.17.10
+
+2- View the pod running the nginx container
+
+kubectl get pods
+
+3- Expose the nginx container to the Internet:
+
+kubectl expose deployment nginx --port 80 --type LoadBalancer
+
+4- View the new service:
+
+kubectl get services
+
+5- Open a new web browser tab and paste your cluster's external IP address into the address bar. The default home page of the Nginx browser is displayed.
+
+or in your cloud shell you can use curl http://EXTERNAL_IP and you will see the ngnix displayed
+
+6- Scale up the number of pods running on your service:
+
+kubectl scale deployment nginx --replicas 3
+
+7- Confirm that Kubernetes has updated the number of pods:
+
+kubectl get pods
+
+8- Confirm that your external IP address has not changed:
+
+kubectl get services
+
+
+
+
+
+
